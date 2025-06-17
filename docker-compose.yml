@@ -1,0 +1,30 @@
+services:
+  servidor:
+    build: .
+    container_name: servidor_seguro
+    ports:
+      - "8888:8888"
+    volumes:
+      # Monta o código-fonte local no contêiner para desenvolvimento
+      - ./app:/app
+    command: python servidor.py
+    networks:
+      - seguranca_net
+
+  cliente:
+    build: .
+    container_name: cliente_seguro
+    depends_on:
+      - servidor
+    volumes:
+      # Monta o código-fonte local no contêiner
+      - ./app:/app
+    # O comando `sleep infinity` mantém o contêiner rodando
+    # para que você possa entrar e executar o cliente manualmente.
+    command: sleep infinity
+    networks:
+      - seguranca_net
+
+networks:
+  seguranca_net:
+    driver: bridge
