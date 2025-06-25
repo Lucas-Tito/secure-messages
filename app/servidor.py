@@ -7,10 +7,10 @@ Implementa servidor que recebe mensagens criptografadas usando:
 - HMAC para integridade e autenticidade
 
 Funções:
-- get_public_key_from_github
-- verify_ecdsa_signature
-- sign_message
-- derive_keys
+- get_public_key_from_github ⚠️
+- verify_ecdsa_signature ✓
+- sign_message ✓
+- derive_keys ✓
 - decrypt_message
 - verify_hmac
 - handle_diffie_hellman_handshake ✓
@@ -95,6 +95,7 @@ This_Would_Be_A_Real_ECDSA_Public_Key_From_GitHub_In_Production_Environment
     
     def verify_ecdsa_signature(self, message, signature, public_key):
         """Verifica assinatura ECDSA"""
+        # usa a biblioteca cryptography para verificar a assinatura digital
         try:
             public_key.verify(signature, message, ec.ECDSA(hashes.SHA256()))
             return True
@@ -106,6 +107,7 @@ This_Would_Be_A_Real_ECDSA_Public_Key_From_GitHub_In_Production_Environment
     
     def sign_message(self, message):
         """Assina mensagem com chave privada ECDSA"""
+        # Utiliza a biblioteca cryptography
         try:
             signature = self.private_key.sign(message, ec.ECDSA(hashes.SHA256()))
             return signature
@@ -146,6 +148,7 @@ This_Would_Be_A_Real_ECDSA_Public_Key_From_GitHub_In_Production_Environment
     
     def decrypt_message(self, encrypted_data, key_aes, iv):
         """Descriptografa mensagem usando AES-CBC"""
+        # Usa a biblioteca cryptography
         try:
             cipher = Cipher(algorithms.AES(key_aes), modes.CBC(iv))
             decryptor = cipher.decryptor()
