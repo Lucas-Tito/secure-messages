@@ -1,15 +1,21 @@
-#!/usr/bin/env python3
 """
-Servidor de Mensagens Seguras
-Disciplina: Segurança da Informação
-Prof. Michel Sales
-
 Implementa servidor que recebe mensagens criptografadas usando:
 - Diffie-Hellman para troca de chaves
 - ECDSA para assinatura digital
 - PBKDF2 para derivação de chaves
 - AES-CBC para criptografia
 - HMAC para integridade e autenticidade
+
+Funções:
+- get_public_key_from_github
+- verify_ecdsa_signature
+- sign_message
+- derive_keys
+- decrypt_message
+- verify_hmac
+- handle_diffie_hellman_handshake ✓
+- handle_secure_message
+- start_server
 """
 
 import socket
@@ -31,7 +37,10 @@ class SecureServer:
         self.port = port
         self.socket = None
         
-        # Parâmetros Diffie-Hellman (RFC 3526 - 2048-bit MODP Group)
+        # Parâmetros Diffie-Hellman a serem usados na função handle_diffie_hellman_handshake
+        # p é o número primo e g é o gerador
+        # seguindo a analogia do slide, essas são as cores que o servidor vai misturar e mandar para o cliente 
+        # p é uma "base" para formar a cor privada e g é a cor comum que os dois vão usar.
         self.p = int('0xFFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1'
                     '29024E088A67CC74020BBEA63B139B22514A08798E3404DD'
                     'EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245'
@@ -106,6 +115,9 @@ This_Would_Be_A_Real_ECDSA_Public_Key_From_GitHub_In_Production_Environment
     
     def derive_keys(self, shared_secret, salt):
         """Deriva chaves AES e HMAC usando PBKDF2"""
+        # Usa a biblioteca cryptography
+        # Gera duas chaves distintas para o AES e HMAC
+        # aplica hash em cima de hash a cada iteração
         try:
             iterations = 100000
             
@@ -168,7 +180,9 @@ This_Would_Be_A_Real_ECDSA_Public_Key_From_GitHub_In_Production_Environment
         try:
             print("[SERVIDOR] Iniciando handshake Diffie-Hellman...")
             
-            # 1. Receber A, sig_A, username_cliente
+            # Recebe  A, sig_a e username_cliente
+            # A pode ser entendido como a mistura de cores do cliente
+            # Já sig_a é a assinatura digital ECDSA que garante a autenticidade, integridade e não repúdio.
             data = client_socket.recv(4096)
             if not data:
                 return None, None, None
@@ -206,10 +220,13 @@ This_Would_Be_A_Real_ECDSA_Public_Key_From_GitHub_In_Production_Environment
                 print("[SERVIDOR] Assinatura verificada com sucesso")
             
             # 3. Gerar par DH do servidor
+            # b é a cor secreta escolhida pelo servidor usando o número primo como base
+            # B é a mistura da cor privada com a cor comum
             b = secrets.randbelow(self.p - 1) + 1
             B = pow(self.g, b, self.p)
             
-            # 4. Assinar B + username_servidor
+
+            # 4. Assina a mistura de cores junto ao seu username usando ECDSA.
             message_to_sign = B.to_bytes(256, 'big') + self.username.encode()
             sig_B = self.sign_message(message_to_sign)
             
@@ -226,15 +243,20 @@ This_Would_Be_A_Real_ECDSA_Public_Key_From_GitHub_In_Production_Environment
             print(f"[SERVIDOR] Enviado B={B}")
             
             # 6. Calcular chave secreta compartilhada
+            # É a mistura de cores final que será idêntica para o cliente e para o servidor.
             shared_secret = pow(A, b, self.p)
             print(f"[SERVIDOR] Chave compartilhada calculada: {shared_secret}")
             
             # 7. Gerar salt e enviar para o cliente
+            # Usa o segredo do diff hellman em conjunto com o salt como entrada
+            # para o AES e para o HMAC.
             salt = secrets.token_bytes(32)
             client_socket.send(struct.pack('!I', len(salt)) + salt)
             print("[SERVIDOR] Salt enviado para derivação de chaves")
             
             # 8. Derivar chaves
+            # Usa a chave secreta do Diffie-Hellman como base para gerar duas chaves diferentes
+            # para o AES e o HMAC a partir do PBKDF2.
             key_aes, key_hmac = self.derive_keys(shared_secret, salt)
             
             return key_aes, key_hmac, shared_secret

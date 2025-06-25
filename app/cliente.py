@@ -1,15 +1,22 @@
 #!/usr/bin/env python3
 """
-Cliente de Mensagens Seguras
-Disciplina: Segurança da Informação
-Prof. Michel Sales
-
 Implementa cliente que envia mensagens criptografadas usando:
 - Diffie-Hellman para troca de chaves
 - ECDSA para assinatura digital
 - PBKDF2 para derivação de chaves
 - AES-CBC para criptografia
 - HMAC para integridade e autenticidade
+
+Funções:
+- get_public_key_from_github
+- verify_ecdsa_signature
+- sign_message
+- derive_keys
+- encrypt_message
+- calculate_hmac
+- perform_diffie_hellman_handshake
+- send_secure_message
+- connect_and_send
 """
 
 import socket
