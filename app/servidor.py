@@ -314,6 +314,7 @@ This_Would_Be_A_Real_ECDSA_Public_Key_From_GitHub_In_Production_Environment
     def start_server(self):
         """Inicia o servidor"""
         try:
+            #cria socket TCP
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.socket.bind((self.host, self.port))

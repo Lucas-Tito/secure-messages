@@ -141,6 +141,7 @@ This_Would_Be_A_Real_ECDSA_Public_Key_From_GitHub_In_Production_Environment
     
     def encrypt_message(self, message, key_aes):
         """Criptografa mensagem usando AES-CBC"""
+
         try:
             # Gerar IV aleatório
             iv = secrets.token_bytes(16)
