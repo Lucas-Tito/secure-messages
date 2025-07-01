@@ -72,20 +72,15 @@ class SecureServer:
         """Simula busca de chave pública do GitHub"""
         print(f"[SERVIDOR] Simulando busca da chave pública de {username} no GitHub...")
         
-        # Em um cenário real, isso faria uma requisição HTTP para:
-        # url = f"https://github.com/{username}.keys"
-        # Por simplicidade, vamos usar chaves hardcoded para teste
-        
         if username == "cliente_seguro":
-            # Chave pública do cliente (em um cenário real viria do GitHub)
+            # Chave pública do cliente hardcoded
             test_key_pem = """-----BEGIN PUBLIC KEY-----
 MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAETest_Key_For_Demo_Purposes_Only
 This_Would_Be_A_Real_ECDSA_Public_Key_From_GitHub_In_Production_Environment
 -----END PUBLIC KEY-----"""
             
             try:
-                # Para demonstração, retornamos None para simular falha na busca
-                # Em produção, isso decodificaria a chave PEM real
+                # None para simular falha na busca
                 return None
             except Exception as e:
                 print(f"[SERVIDOR] Erro ao decodificar chave pública: {e}")
@@ -288,10 +283,10 @@ This_Would_Be_A_Real_ECDSA_Public_Key_From_GitHub_In_Production_Environment
             
             # Verificar HMAC
             if not self.verify_hmac(key_hmac, iv, encrypted_message, hmac_tag):
-                print("[SERVIDOR] ERRO: HMAC inválido! Mensagem rejeitada.")
+                print("[SERVIDOR] ERRO: HMAC inválido")
                 return False
             
-            print("[SERVIDOR] HMAC verificado com sucesso - Integridade e autenticidade confirmadas")
+            print("[SERVIDOR] HMAC verificado com sucesso")
             
             # Descriptografar mensagem
             decrypted_message = self.decrypt_message(encrypted_message, key_aes, iv)
@@ -308,7 +303,7 @@ This_Would_Be_A_Real_ECDSA_Public_Key_From_GitHub_In_Production_Environment
             return True
             
         except Exception as e:
-            print(f"[SERVIDOR] Erro ao processar mensagem segura: {e}")
+            print(f"[SERVIDOR] Erro ao processar mensagem: {e}")
             return False
     
     def start_server(self):
@@ -328,6 +323,9 @@ This_Would_Be_A_Real_ECDSA_Public_Key_From_GitHub_In_Production_Environment
                 print(f"[SERVIDOR] Cliente conectado de {address}")
                 
                 try:
+                    print("\n" + "=" * 60)
+                    print("---handshake Diffie-Hellman---")
+                    print("=" * 60)
                     # Executar handshake Diffie-Hellman
                     key_aes, key_hmac, shared_secret = self.handle_diffie_hellman_handshake(client_socket)
                     
@@ -338,11 +336,14 @@ This_Would_Be_A_Real_ECDSA_Public_Key_From_GitHub_In_Production_Environment
                     
                     print("[SERVIDOR] Handshake concluído com sucesso")
                     
+                    print("\n" + "=" * 60)
+                    print("---processa mensagem---")
+                    print("=" * 60)
                     # Processar mensagem segura
                     if self.handle_secure_message(client_socket, key_aes, key_hmac):
-                        print("[SERVIDOR] Comunicação segura concluída com sucesso")
+                        print("[SERVIDOR] Comunicação concluída com sucesso")
                     else:
-                        print("[SERVIDOR] ERRO: Falha na comunicação segura")
+                        print("[SERVIDOR] ERRO: Falha na comunicação")
                     
                 except Exception as e:
                     print(f"[SERVIDOR] Erro ao processar cliente: {e}")

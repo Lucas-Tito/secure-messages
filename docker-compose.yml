@@ -7,7 +7,9 @@ services:
     volumes:
       # Monta o código-fonte local no contêiner para desenvolvimento
       - ./app:/app
-    command: python servidor.py
+    command: python -u servidor.py
+    environment:
+      - PYTHONUNBUFFERED=1
     networks:
       - seguranca_net
 
@@ -22,6 +24,8 @@ services:
     # O comando `sleep infinity` mantém o contêiner rodando
     # para que você possa entrar e executar o cliente manualmente.
     command: sleep infinity
+    environment:
+      - PYTHONUNBUFFERED=1
     networks:
       - seguranca_net
 

@@ -70,20 +70,15 @@ class SecureClient:
         """Simula busca de chave pública do GitHub"""
         print(f"[CLIENTE] Simulando busca da chave pública de {username} no GitHub...")
         
-        # Em um cenário real, isso faria uma requisição HTTP para:
-        # url = f"https://github.com/{username}.keys"
-        # Por simplicidade, vamos usar chaves hardcoded para teste
-        
         if username == "servidor_seguro":
-            # Chave pública do servidor (em um cenário real viria do GitHub)
+            # Chave pública do servidor hardcoded
             test_key_pem = """-----BEGIN PUBLIC KEY-----
 MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAETest_Key_For_Demo_Purposes_Only
 This_Would_Be_A_Real_ECDSA_Public_Key_From_GitHub_In_Production_Environment
 -----END PUBLIC KEY-----"""
             
             try:
-                # Para demonstração, retornamos None para simular falha na busca
-                # Em produção, isso decodificaria a chave PEM real
+                # None para simular falha na busca
                 return None
             except Exception as e:
                 print(f"[CLIENTE] Erro ao decodificar chave pública: {e}")
@@ -300,6 +295,9 @@ This_Would_Be_A_Real_ECDSA_Public_Key_From_GitHub_In_Production_Environment
             self.socket.connect((self.host, self.port))
             print(f"[CLIENTE] Conectado ao servidor {self.host}:{self.port}")
             
+            print("\n" + "=" * 60)
+            print("---handshake Diffie-Hellman---")
+            print("=" * 60)
             # Executar handshake Diffie-Hellman
             key_aes, key_hmac, shared_secret = self.perform_diffie_hellman_handshake()
             
@@ -310,6 +308,9 @@ This_Would_Be_A_Real_ECDSA_Public_Key_From_GitHub_In_Production_Environment
             print("[CLIENTE] Handshake concluído com sucesso")
             print(f"[CLIENTE] Chaves derivadas - AES: {len(key_aes)} bytes, HMAC: {len(key_hmac)} bytes")
             
+            print("\n" + "=" * 60)
+            print("---Envio de Mensagem---")
+            print("=" * 60)
             # Enviar mensagem segura
             success = self.send_secure_message(message, key_aes, key_hmac)
             
@@ -348,7 +349,7 @@ def main():
         message = input("\n[CLIENTE] Digite a mensagem a ser enviada: ").strip()
         
         if not message:
-            print("[CLIENTE] Mensagem não pode ser vazia!")
+            print("[CLIENTE] Mensagem não pode ser vazia")
             return
     
     print(f"\n[CLIENTE] Mensagem a ser enviada: '{message}'")
@@ -361,16 +362,11 @@ def main():
         
         if success:
             print("\n" + "=" * 60)
-            print("✅ COMUNICAÇÃO SEGURA CONCLUÍDA COM SUCESSO!")
-            print("✅ Confidencialidade: Mensagem criptografada com AES-256-CBC")
-            print("✅ Integridade: Verificada com HMAC-SHA256")
-            print("✅ Autenticidade: Confirmada via HMAC e assinatura ECDSA")
-            print("✅ Troca de chaves: Diffie-Hellman com assinatura digital")
+            print("COMUNICAÇÃO CONCLUÍDA COM SUCESSO")
             print("=" * 60)
         else:
             print("\n" + "=" * 60)
-            print("❌ FALHA NA COMUNICAÇÃO SEGURA")
-            print("❌ Verifique se o servidor está funcionando corretamente")
+            print("FALHA NA COMUNICAÇÃO")
             print("=" * 60)
             
     except KeyboardInterrupt:
